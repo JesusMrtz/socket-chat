@@ -19,14 +19,16 @@ io.on('connection', (client) => {
         user.addPerson(client.id, data.name, data.room);
 
         client.broadcast.to(data.room).emit('listPeople', user.getPeopleByRoom(data.room));
+        client.broadcast.to(data.room).emit('createMessage', createMessage('Admin', `${data.name} se unió`));
         callback(user.getPeopleByRoom(data.room));
     });
 
-    client.on('createMessage', (data) => {
+    client.on('createMessage', (data, callback) => {
         let person = user.getPerson(client.id);
         let message = createMessage(person.name, data.message);
 
         client.broadcast.to(person.room).emit('createMessage', message);
+        callback(message);
     });
 
     client.on('disconnect', () => {
